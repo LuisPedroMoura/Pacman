@@ -1,5 +1,5 @@
 # The_Cheddar_Project
-Artificial Intelligence to survive as score the most points as Pac-Man.
+Artificial Intelligence for Pac-Man to survive and score the most points possible.
 
 Version 1:
 Started as a 3-person group project for Introduction to Artificial Intelligence 
