@@ -49,8 +49,9 @@ class StrategyTopographer():
 
         # find ghosts den. This area will not be used in any search or strategy
         # and should be avoided by PACMAN
+        print('YEY2')
         self.ghosts_den = self.get_ghosts_den(self.map_)
-        #self.ghosts_den = self.get_den_interior()
+        print('ghosts den: ' + str(self.ghosts_den))
 
         pathways_hor = []
         for y in range(self.map_.ver_tiles):
@@ -94,124 +95,195 @@ class StrategyTopographer():
 
         return crossroads
 
+
+#------------------------------------------------------------------------------#
+
+    def get_ghosts_den(self, map_):
+        print('YEY3')
+
+        
+
+        spawn = map_.ghost_spawn
+        return spawn
+        # find corners that are walls
+
+        ulc = self.find_corner(map_, spawn, (-1,-1))
+        urc = self.find_corner(map_, spawn, (1,-1))
+        llc = self.find_corner(map_, spawn, (-1,1))
+        lrc = self.find_corner(map_, spawn, (1,1))
+
+        den = []
+        for i in range(ulc[0], urc[0]+1):
+            den += [[i,ulc[1]]]
+
+        l = 0
+        den_lines = []
+        while l < llc[1]-ulc[1]:
+            den_line = [[x,y+l+1] for [x,y] in den]
+            den_lines += [c for c in den_line]
+            l += 1
+
+        den += [c for c in den_lines]
+        
+        return den    
+
+
+    def find_corner(self, map_, spawn, dir):
+        print('YEY4')
+
+        if dir == (-1,-1) or dir == (1,-1):
+            spawnA = [spawn[0]-1, spawn[1]+1]
+            spawnB = [spawn[0]+1, spawn[1]-1]
+        else:
+            spawnA = [spawn[0]+1, spawn[1]+1]
+            spawnB = [spawn[0]-1, spawn[1]-1]
+
+        #adjust diagonally
+        while (not map_.is_wall(spawn) and not map_.is_wall(spawnA) and not map_.is_wall(spawnA)):
+            spawnA = [spawnA[0]+dir[0], spawnA[1]+dir[1]]
+            spawn = [spawn[0]+dir[0], spawn[1]+dir[1]]
+            spawnB = [spawnB[0]+dir[0], spawnB[1]+dir[1]]
+
+        if map_.is_wall(spawnA) and map_.is_wall(spawnB):
+            return spawn
+        elif map_.is_wall(spawnA):
+            spawnH = [spawnB[0]-dir[0], spawnB[1]]
+            spawnV = [spawnA[0], spawnA[1]+dir[1]]
+        elif map_.is_wall(spawnB):
+            spawnH = [spawnB[0], spawnB[1]+dir[1]]
+            spawnV = [spawnB[0], spawnB[1]+dir[1]]
+        
+        #adjust horizontally
+        while (not map_.is_wall(spawn) and not map_.is_wall(spawn2)):
+            spawn = [spawn[0]+dir[0], spawn[1]]
+            spawn = [spawn2[0]+dir[0], spawn2[1]]
+        
+        spawn = [spawn[0]-dir[0], spawn[1]]
+
+        #adjust vertically
+        while (not map_.is_wall(spawn)):
+            spawn = [spawn[0], spawn[1]+dir[1]]
+        spawn = [spawn[0], spawn[1]-dir[0]]    
+        print('\t' + str(spawn))
+        return spawn
 #------------------------------------------------------------------------------#
 
     #* ##########   TESTED AND VERIFIED   ##########
-    def get_ghosts_den(self, map_):
-        """delimit the coordinates that make up the ghosts den
+    # def get_ghosts_den(self, map_):
+    #     """delimit the coordinates that make up the ghosts den
 
-        Args:
-        map_       : map of the game
+    #     Args:
+    #     map_       : map of the game
 
-        Returns:
-        den_corners: list of coordinates of the points inside the den (including the walls and entrances)
-        """
+    #     Returns:
+    #     den_corners: list of coordinates of the points inside the den (including the walls and entrances)
+    #     """
 
-        # get ghots spawn point (which is itself part of the den)
-        spawn = map_.ghost_spawn
+    #     # get ghots spawn point (which is itself part of the den)
+    #     spawn = map_.ghost_spawn
         
-        # list of the 4 corners of the den (den is a rectangle)
-        den_corners = []
+    #     # list of the 4 corners of the den (den is a rectangle)
+    #     den_corners = []
 
-        # possible directions to go from a given point in the map
-        # format (dir_x, dir_y)
-        # currently init is equivalent to left, right, up, down
-        possible_dirs =[(-1,0), (1,0), (0, 1), (0, -1)]    
+    #     # possible directions to go from a given point in the map
+    #     # format (dir_x, dir_y)
+    #     # currently init is equivalent to left, right, up, down
+    #     possible_dirs =[(-1,0), (1,0), (0, 1), (0, -1)]    
 
-        # initialize to_visit queue
-        # to_visit is a queue with the points to visit
-        # each position is a tuple (pos_x, pos_y, list of possible directions)
-        to_visit = [(spawn, possible_dirs)]     
+    #     # initialize to_visit queue
+    #     # to_visit is a queue with the points to visit
+    #     # each position is a tuple (pos_x, pos_y, list of possible directions)
+    #     to_visit = [(spawn, possible_dirs)]     
 
-        while len(to_visit) > 0:
-            # "pop" element from queue to_visit
-            current_pos, current_dirs = to_visit[0]
-            current_x, current_y = current_pos
-            to_visit = to_visit[1:] 
+    #     while len(to_visit) > 0:
+    #         # "pop" element from queue to_visit
+    #         current_pos, current_dirs = to_visit[0]
+    #         current_x, current_y = current_pos
+    #         to_visit = to_visit[1:] 
             
-            adj_walls = []
+    #         adj_walls = []
 
-            for current_dir in current_dirs:
-                current_dir_x, current_dir_y = current_dir    
-                remaining_dirs = [dir_ for dir_ in current_dirs if dir_ != current_dir]
+    #         for current_dir in current_dirs:
+    #             current_dir_x, current_dir_y = current_dir    
+    #             remaining_dirs = [dir_ for dir_ in current_dirs if dir_ != current_dir]
                 
-                # New position is obtained traveling in the current_direction from the (current_x, current_y)
-                new_pos = current_x + current_dir_x, current_y + current_dir_y
+    #             # New position is obtained traveling in the current_direction from the (current_x, current_y)
+    #             new_pos = current_x + current_dir_x, current_y + current_dir_y
 
-                # if it's a wall, add the new position to the list of the adjacent walls
-                if (self.map_.is_wall(new_pos)):                    
-                    adj_walls += [new_pos]
+    #             # if it's a wall, add the new position to the list of the adjacent walls
+    #             if (self.map_.is_wall(new_pos)):                    
+    #                 adj_walls += [new_pos]
                   
-                # if it's not a wall, add the new position to the positions to visit. 
-                else:
-                    # from the new position we can go to the remaning_dirs + the oposite direction of where it came from 
-                    # (thus avoiding repetead points, ie going back)
-                    possible_dirs = [current_dir] + [dir_ for dir_ in remaining_dirs if dir_ != (current_dir_x * -1, current_dir_y * -1)]
-                    to_visit += [(new_pos, possible_dirs)]
+    #             # if it's not a wall, add the new position to the positions to visit. 
+    #             else:
+    #                 # from the new position we can go to the remaning_dirs + the oposite direction of where it came from 
+    #                 # (thus avoiding repetead points, ie going back)
+    #                 possible_dirs = [current_dir] + [dir_ for dir_ in remaining_dirs if dir_ != (current_dir_x * -1, current_dir_y * -1)]
+    #                 to_visit += [(new_pos, possible_dirs)]
             
-            # the current point is a candidate to be a corner (2 adjacent walls)
-            if len(adj_walls) == 2: 
+    #         # the current point is a candidate to be a corner (2 adjacent walls)
+    #         if len(adj_walls) == 2: 
 
-                # verify if adjacent walls are valid
-                # all corners in a rectangle has 2 adjacent walls
-                # but we can have points with 2 adjacent walls 
-                # without being a corner (see point (3, 15) of the original map, for example)
-                wall1_x, wall1_y = adj_walls[0]
-                wall2_x, wall2_y = adj_walls[1]
+    #             # verify if adjacent walls are valid
+    #             # all corners in a rectangle has 2 adjacent walls
+    #             # but we can have points with 2 adjacent walls 
+    #             # without being a corner (see point (3, 15) of the original map, for example)
+    #             wall1_x, wall1_y = adj_walls[0]
+    #             wall2_x, wall2_y = adj_walls[1]
                 
-                if (abs(wall1_x - wall2_x) == 1 and abs(wall1_y - wall2_y) == 1):
-                    # we can have repeteaded corners 
-                    # we can reach corners from different paths
-                    den_corners = list(set(den_corners + [(current_x, current_y)]))
+    #             if (abs(wall1_x - wall2_x) == 1 and abs(wall1_y - wall2_y) == 1):
+    #                 # we can have repeteaded corners 
+    #                 # we can reach corners from different paths
+    #                 den_corners = list(set(den_corners + [(current_x, current_y)]))
                     
-                    # Found all den corners (a rectangular den has 4 corners)
-                    # Since the den is rectangular so, we can define the bounds of the den 
-                    # and its inside points using the corners
-                    if (len(den_corners) == 4):
+    #                 # Found all den corners (a rectangular den has 4 corners)
+    #                 # Since the den is rectangular so, we can define the bounds of the den 
+    #                 # and its inside points using the corners
+    #                 if (len(den_corners) == 4):
                         
-                        # previously
-                        #return den_corners
+    #                     # previously
+    #                     #return den_corners
 
-                        # return all positions of the outer square
-                        # 4 corners, two possible values for x and y: the min and max
-                        x_values, y_values = set([x for (x, y) in den_corners]), set([y for (x, y) in den_corners])
-                        big_x, big_y = max(x_values), max(y_values)
-                        small_x, small_y = min(x_values), min(y_values)
+    #                     # return all positions of the outer square
+    #                     # 4 corners, two possible values for x and y: the min and max
+    #                     x_values, y_values = set([x for (x, y) in den_corners]), set([y for (x, y) in den_corners])
+    #                     big_x, big_y = max(x_values), max(y_values)
+    #                     small_x, small_y = min(x_values), min(y_values)
                         
-                        # include the walls
-                        small_x -= 1
-                        small_y -= 1
-                        big_x   += 1
-                        big_y   += 1
-                        den = []
+    #                     # include the walls
+    #                     small_x -= 1
+    #                     small_y -= 1
+    #                     big_x   += 1
+    #                     big_y   += 1
+    #                     den = []
 
-                        for i in range(small_x, big_x + 1, 1):
-                            for j in range(small_y, big_y + 1, 1):
-                                den += [[i, j]]
+    #                     for i in range(small_x, big_x + 1, 1):
+    #                         for j in range(small_y, big_y + 1, 1):
+    #                             den += [[i, j]]
 
-                        return den
+    #                     return den
 
-                    # clean up to_visit
-                    # after finding a corner, we no longer have to
-                    # search using the points in that quadrant 
-                    # so we can clean up the list based on zones
+    #                 # clean up to_visit
+    #                 # after finding a corner, we no longer have to
+    #                 # search using the points in that quadrant 
+    #                 # so we can clean up the list based on zones
 
-                    # Note:
-                    # visit[0] -> pos
-                    # visit[0][0/1] -> pos_x/pos_y
-                    if (current_x < spawn[0]):
-                        if (current_y > spawn[0]): # left up corner
-                            to_visit = [visit for visit in to_visit if visit[0][0] > spawn[0] or (visit[0][0]  < spawn[0] and visit[0][1] < spawn[1])]
-                        if (current_y < spawn[0]): # left down corner
-                            to_visit = [visit for visit in to_visit if visit[0][0] > spawn[0] or (visit[0][0]  < spawn[0] and visit[0][1] > spawn[1])]
-                    elif (current_x > spawn[0]):
-                        if (current_y > spawn[0]): # right up corner
-                            to_visit = [visit for visit in to_visit if visit[0][0] < spawn[0] or (visit[0][0]  > spawn[0] and visit[0][1] < spawn[1])]
-                        if (current_y < spawn[0]): # right down corner
-                            to_visit = [visit for visit in to_visit if visit[0][0] < spawn[0] or (visit[0][0]  > spawn[0] and visit[0][1] > spawn[1])]
+    #                 # Note:
+    #                 # visit[0] -> pos
+    #                 # visit[0][0/1] -> pos_x/pos_y
+    #                 if (current_x < spawn[0]):
+    #                     if (current_y > spawn[0]): # left up corner
+    #                         to_visit = [visit for visit in to_visit if visit[0][0] > spawn[0] or (visit[0][0]  < spawn[0] and visit[0][1] < spawn[1])]
+    #                     if (current_y < spawn[0]): # left down corner
+    #                         to_visit = [visit for visit in to_visit if visit[0][0] > spawn[0] or (visit[0][0]  < spawn[0] and visit[0][1] > spawn[1])]
+    #                 elif (current_x > spawn[0]):
+    #                     if (current_y > spawn[0]): # right up corner
+    #                         to_visit = [visit for visit in to_visit if visit[0][0] < spawn[0] or (visit[0][0]  > spawn[0] and visit[0][1] < spawn[1])]
+    #                     if (current_y < spawn[0]): # right down corner
+    #                         to_visit = [visit for visit in to_visit if visit[0][0] < spawn[0] or (visit[0][0]  > spawn[0] and visit[0][1] > spawn[1])]
                                
-        # Should never reach this      
-        return []
+    #     # Should never reach this      
+    #     return []
         
 
 #------------------------------------------------------------------------------#

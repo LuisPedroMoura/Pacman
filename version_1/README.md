@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Pacman
-Artificial Intelligence to survive as score the most points as Pac-Man.
-=======
 # iia-ia-pacman
 Client-Server PACMAN clone
 
@@ -37,4 +33,3 @@ $ python client.py
 
 # Credits
 Sprites from https://github.com/rm-hull/big-bang/tree/master/examples/pacman/data
->>>>>>> version1/master
